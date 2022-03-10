@@ -91,4 +91,7 @@ ENV/
 #===========
 *.jpg
 *.npy
+*.mp4
+*img1*
+*output.txt
 
