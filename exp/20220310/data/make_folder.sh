@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 array=(`ls . | grep -e "mp4"`)
 
 for file in "${array[@]}"; do
@@ -14,5 +13,9 @@ for file in "${array[@]}"; do
   # move detection file_name
   mkdir -p $file_name/det
   mv detection_$file_name.npy $file_name/det
+
+  # make img1
+  mkdir -p $file_name/img1
+  ffmpeg -i "${file_name}/${file}" $file_name/img1/%08d.jpg
 
 done

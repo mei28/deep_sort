@@ -94,4 +94,5 @@ ENV/
 *.mp4
 *img1*
 *output.txt
+*.pkl
 
