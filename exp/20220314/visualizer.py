@@ -55,11 +55,13 @@ def draw_bbox(im0, bbox: Union[tuple, list] = [], **kwargs):
         bbox tuple: tldr形式の座標
     """
     x1, y1, x2, y2 = bbox
-    x1,y1 = min_max_shape(im0,x1,y1)
-    x2,y2 = min_max_shape(im0,x2,y2)
+    # x1,y1 = min_max_shape(im0,x1,y1)
+    # x2,y2 = min_max_shape(im0,x2,y2)
+    overlay = im0.copy()
     cv2.rectangle(
-        im0, (int(x1), int(y1)), (int(x2), int(y2)), color=kwargs["color"], thickness=2
+        overlay, (int(x1), int(y1)), (int(x2), int(y2)), color=kwargs["color"], thickness=2
     )
+    im0 = cv2.addWeighted(overlay,kwargs['alpha'],im0,1-kwargs['alpha'],0)
     return im0.copy()
 
 def draw_id(im0, bbox: Union[tuple, list], id_num: int, **kwargs):
@@ -71,14 +73,17 @@ def draw_id(im0, bbox: Union[tuple, list], id_num: int, **kwargs):
     num_height = FONT_SIZE
     num_width = FONT_SIZE * (len(str(id_num)) + 2)
     x1, y1, _, _ = bbox
-    x1,y1 = min_max_shape(im0,x1,y1)
+    overlay = im0.copy()
     cv2.rectangle(
-        im0,
+        overlay,
         (int(x1), int(y1)),
         (int(x1) + num_width, int(y1) + num_height),
         color=kwargs["color"],
         thickness=-1,
     )
+    im0 = cv2.addWeighted(overlay, kwargs['alpha'],im0,1-kwargs['alpha'],0)
+
+    x1,y1 = min_max_shape(im0,x1,y1)
     cv2.putText(
         img=im0,
         text=f"{id_num}",
@@ -151,14 +156,16 @@ def draw_one_frame(_bboxes: list, target_frame_id: int, img_path: Path):
     im0 = load_img(img_path, target_frame_id)
     bboxes: list = get_masked_bboxes(_bboxes, target_frame_id)
 
+    config={'color':RED,'alpha':0.4}
+
     for one_bbox in bboxes:
         frame_id, player_id = int(one_bbox[0]), int(one_bbox[1])
         assert frame_id == target_frame_id
         bbox =  one_bbox[2:6]
         bbox = list(map(lambda x: max(float(x),0),bbox))
         bbox = tlwh2tldr(bbox)
-        im0 = draw_bbox(im0, bbox, color=RED)
-        im0 = draw_id(im0, bbox, player_id, color=RED)
+        im0 = draw_bbox(im0, bbox, **config)
+        im0 = draw_id(im0, bbox, player_id, **config)
     return im0
 
 
