@@ -2,11 +2,12 @@ import cv2
 import pickle
 import csv
 from pdb import set_trace as pst
-from typing import Union, Optional
+from typing import Union, Optional, List
 from pathlib import Path
 from tqdm import tqdm
 import argparse
 from dataclasses import dataclass, field
+from collections import OrderedDict
 
 # colors
 GRAY = [200, 200, 200]
@@ -31,6 +32,23 @@ colors = {
     "ORANGE": ORANGE,
     "YELLOW": YELLOW,
 }
+# segments for plotting
+segments = OrderedDict(
+    {
+        1: [5, 6],
+        2: [5, 11],
+        3: [11, 12],
+        4: [12, 6],
+        5: [5, 7],
+        6: [7, 9],
+        7: [6, 8],
+        8: [8, 10],
+        9: [11, 13],
+        10: [13, 15],
+        11: [12, 14],
+        12: [14, 16],
+    }
+)
 
 
 def get_args():
@@ -91,6 +109,17 @@ def draw_labels(im0, label: str = None, **kwargs):
         thickness=2,
     )
 
+    return im0.copy()
+
+
+def draw_pose(im0, pose, **kwargs):
+    """姿勢を書き込む"""
+
+    for _, seg in segments.items():
+        pt1 = (int(pose[seg[0], 0]), int(pose[seg[0], 1]))
+        pt2 = (int(pose[seg[1], 0]), int(pose[seg[1], 1]))
+        cv2.line(im0, pt1, pt2, **kwargs)
+    pass
     return im0.copy()
 
 
