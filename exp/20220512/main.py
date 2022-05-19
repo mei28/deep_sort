@@ -33,6 +33,7 @@ from ipdb import set_trace as ist
 import pandas as pd
 from pathlib import Path
 from typing import Union, Tuple
+import multiprocessing
 
 
 def get_args():
@@ -94,6 +95,19 @@ def draw_one_frame(
     return im0
 
 
+def wrap(i_frame: int):
+    im0 = load_img(img_path, i_frame)
+    im0 = draw_one_frame(
+        bbox_list,
+        i_frame,
+        img_path,
+        (player1_tracklet, player2_tracklet),
+        pose_data,
+    )
+    # show_image(im0, i_frame)
+    save_frame_img(im0, dst_path, frame_id=i_frame)
+
+
 if __name__ == "__main__":
 
     args = get_args()
@@ -114,14 +128,20 @@ if __name__ == "__main__":
 
     bbox_list: list = load_bbox_data(str(bbox_path))
 
-    for i_frame in tqdm.tqdm(range(1, MAX_FRAME)):
-        im0 = load_img(img_path, i_frame)
-        im0 = draw_one_frame(
-            bbox_list,
-            i_frame,
-            img_path,
-            (player1_tracklet, player2_tracklet),
-            pose_data,
-        )
-        # show_image(im0, i_frame)
-        save_frame_img(im0, dst_path, frame_id=i_frame)
+    processes = multiprocessing.cpu_count()
+    progress = tqdm.tqdm(total=MAX_FRAME)
+    with multiprocessing.Pool(processes=processes) as pool:
+        for _ in pool.imap(wrap, range(1, MAX_FRAME)):
+            progress.update(1)
+
+    # for i_frame in tqdm.tqdm(range(1, MAX_FRAME)):
+    #     im0 = load_img(img_path, i_frame)
+    #     im0 = draw_one_frame(
+    #         bbox_list,
+    #         i_frame,
+    #         img_path,
+    #         (player1_tracklet, player2_tracklet),
+    #         pose_data,
+    #     )
+    #     # show_image(im0, i_frame)
+    #     save_frame_img(im0, dst_path, frame_id=i_frame)
