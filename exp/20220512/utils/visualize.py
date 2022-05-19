@@ -2,6 +2,7 @@ import cv2
 import pickle
 import csv
 from pdb import set_trace as pst
+from ipdb import set_trace as ist
 from typing import Union, Optional, List
 from pathlib import Path
 from tqdm import tqdm
@@ -112,14 +113,14 @@ def draw_labels(im0, label: str = None, **kwargs):
     return im0.copy()
 
 
-def draw_pose(im0, pose, **kwargs):
+def draw_pose(im0, _pose, **kwargs):
     """姿勢を書き込む"""
+    pose = _pose[2]
 
     for _, seg in segments.items():
         pt1 = (int(pose[seg[0], 0]), int(pose[seg[0], 1]))
         pt2 = (int(pose[seg[1], 0]), int(pose[seg[1], 1]))
         cv2.line(im0, pt1, pt2, **kwargs)
-    pass
     return im0.copy()
 
 
@@ -270,7 +271,18 @@ def get_masked_bboxes(bboxes: list, target_frame_id: int) -> list:
         if _frame_id == target_frame_id:
             ret.append(_bbox)
 
-        if _frame_id > _frame_id:
+        if _frame_id > target_frame_id:
+            break
+    return ret
+
+
+def get_masked_poses(poses: list, target_frame_id: int) -> list:
+    ret: list = []
+    for pose in poses:
+        _frame_id = pose[0]
+        if _frame_id == target_frame_id:
+            ret.append(pose)
+        if _frame_id > target_frame_id:
             break
     return ret
 

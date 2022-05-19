@@ -230,7 +230,7 @@ def get_masked_bboxes(bboxes: list, target_frame_id: int) -> list:
         if _frame_id == target_frame_id:
             ret.append(_bbox)
 
-        if _frame_id > _frame_id:
+        if _frame_id > target_frame_id:
             break
     return ret
 

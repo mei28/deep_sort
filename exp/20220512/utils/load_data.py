@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from typing import Union, Any, List, Tuple
+import pickle
 import csv
 import json
 
@@ -72,11 +73,23 @@ def load_bbox_data(path_name: Union[str, Path]) -> list:
     """
     bbox_list: list = []
     with open(str(path_name)) as f:
-        reader = csv.reader(f)
-        for row in reader:
-            bbox_list.append(row)
+        try:
+            reader = csv.reader(f)
+            for row in reader:
+                bbox_list.append(row)
+        except IOError:
+            raise ValueError
 
     return bbox_list
+
+
+def load_pose_data(path_name: Union[str, Path]) -> list:
+    with open(str(path_name), "rb") as f:
+        try:
+            data: list = pickle.load(f)
+            return data
+        except IOError:
+            raise ValueError
 
 
 if __name__ == "__main__":

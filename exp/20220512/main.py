@@ -11,6 +11,7 @@ from utils.load_data import (
     get_player_id_list,
     get_player_id_dict,
     load_bbox_data,
+    load_pose_data,
 )
 from utils.visualize import (
     load_img,
@@ -18,14 +19,17 @@ from utils.visualize import (
     save_frame_img,
     show_image,
     get_masked_bboxes,
+    get_masked_poses,
     tlwh2tldr,
     draw_id,
     draw_bbox,
     colors,
+    draw_pose,
 )
 from utils.frame import sec2frame
 import tqdm
 from pdb import set_trace as pst
+from ipdb import set_trace as ist
 import pandas as pd
 from pathlib import Path
 from typing import Union, Tuple
@@ -38,6 +42,7 @@ def get_args():
     parser.add_argument("--max_frame", type=int, required=True)
     parser.add_argument("--bbox_path", type=str, required=True)
     parser.add_argument("--tracklet_path", type=str, required=True)
+    parser.add_argument("--pose_path", type=str, required=True)
 
     args = parser.parse_args()
     return args
@@ -58,7 +63,7 @@ def get_player_config(
 
 
 def draw_one_frame(
-    _bboxes: list, target_frame_id: int, img_path: Path, tracklets: tuple
+    _bboxes: list, target_frame_id: int, img_path: Path, tracklets: tuple, _poses: list
 ):
     """
     指定したフレームの矩形情報を描画する
@@ -69,6 +74,7 @@ def draw_one_frame(
     """
     im0 = load_img(img_path, target_frame_id)
     bboxes: list = get_masked_bboxes(_bboxes, target_frame_id)
+    poses: list = get_masked_poses(_poses, target_frame_id)
 
     for one_bbox in bboxes:
         frame_id, player_id = int(one_bbox[0]), int(one_bbox[1])
@@ -81,6 +87,10 @@ def draw_one_frame(
         bbox = tlwh2tldr(bbox)
         im0 = draw_bbox(im0, bbox, **config)
         im0 = draw_id(im0, bbox, player_id, **config)
+
+    for pose in poses:
+        config = {"color": colors["GREEN"]}
+        im0 = draw_pose(im0, pose, **config)
     return im0
 
 
@@ -93,18 +103,25 @@ if __name__ == "__main__":
     dst_path: Path = Path(args.dst_path)
     bbox_path: Path = Path(args.bbox_path)
     tracklet_path: Path = Path(args.tracklet_path)
+    pose_path: Path = Path(args.pose_path)
 
     # tracklet data
     tracklet_df = load_annotated_trackret_file(tracklet_path)
     player1_tracklet, player2_tracklet = get_player_id_list(tracklet_df)
+
+    # pose data
+    pose_data = load_pose_data(pose_path)
 
     bbox_list: list = load_bbox_data(str(bbox_path))
 
     for i_frame in tqdm.tqdm(range(1, MAX_FRAME)):
         im0 = load_img(img_path, i_frame)
         im0 = draw_one_frame(
-            bbox_list, i_frame, img_path, (player1_tracklet, player2_tracklet)
+            bbox_list,
+            i_frame,
+            img_path,
+            (player1_tracklet, player2_tracklet),
+            pose_data,
         )
         # show_image(im0, i_frame)
         save_frame_img(im0, dst_path, frame_id=i_frame)
-    pst()
