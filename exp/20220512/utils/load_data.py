@@ -76,7 +76,14 @@ def load_bbox_data(path_name: Union[str, Path]) -> list:
         try:
             reader = csv.reader(f)
             for row in reader:
-                bbox_list.append(row)
+                tmp = []
+                for r in row:
+                    if "." in r:
+                        r = float(r)
+                    else:
+                        r = int(r)
+                    tmp.append(r)
+                bbox_list.append(tmp)
         except IOError:
             raise ValueError
 
