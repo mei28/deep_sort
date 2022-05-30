@@ -308,3 +308,26 @@ def save_frame_img(im0, dst_path: Path, frame_id: int):
     if not dst_path.exists():
         dst_path.mkdir(parents=True)
     cv2.imwrite(str(dst_path / f"{frame_id:0>8}.jpg"), im0)
+
+
+def get_player_config(
+    player_id: Union[int, str], tracklets: tuple
+) -> Union[dict, bool]:
+    """プレイヤーの描画コンフィグを獲得する
+    Args:
+        player_id: ターゲットのプレイヤーid
+        tracklets: 各トラックレット
+    Returns:
+        Union[dict,False]: 存在する場合はコンフィグ、存在しない場合はFalse
+    """
+    player1_tracklet, player2_tracklet = tracklets
+    player1_tracklet, player2_tracklet = set(player1_tracklet), set(player2_tracklet)
+    player1_tracklet.remove(-1)
+    player2_tracklet.remove(-1)
+
+    if player_id in player1_tracklet:
+        return {"color": colors["RED"], "alpha": 0.4}
+    elif player_id in player2_tracklet:
+        return {"color": colors["BLUE"], "alpha": 0.4}
+    else:
+        return False

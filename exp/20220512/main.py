@@ -26,6 +26,7 @@ from utils.visualize import (
     colors,
     draw_pose,
 )
+from utils.matching import get_pose_bbox_position, match_id_by_iou
 from utils.frame import sec2frame
 import tqdm
 from pdb import set_trace as pst
@@ -55,7 +56,9 @@ def get_player_config(
     player1_tracklet, player2_tracklet = tracklets
     player1_tracklet, player2_tracklet = set(player1_tracklet), set(player2_tracklet)
 
-    if player_id in player1_tracklet:
+    if player_id == -1:
+        return False
+    elif player_id in player1_tracklet:
         return {"color": colors["RED"], "alpha": 0.4}
     elif player_id in player2_tracklet:
         return {"color": colors["BLUE"], "alpha": 0.4}
@@ -90,19 +93,28 @@ def draw_one_frame(
         im0 = draw_id(im0, bbox, player_id, **config)
 
     for pose in poses:
-        config = {"color": colors["GREEN"]}
+        frame_id, player_id = int(pose[0]), int(pose[1])
+        config = get_player_config(player_id, tracklets)
+        if not config:
+            config = {"color": colors["GRAY"], "alpha": 0.4}
+        pose_bbox = get_pose_bbox_position(pose[2])
+        pose_bbox = (*pose_bbox[0], *pose_bbox[1])
+        im0 = draw_bbox(im0, pose_bbox, **config)
+        im0 = draw_id(im0, pose_bbox, f"{player_id}X", **config)
+        del config["alpha"]
         im0 = draw_pose(im0, pose, **config)
     return im0
 
 
 def wrap(i_frame: int):
+    matched_pose_data = match_id_by_iou(pose_data, bbox_list, i_frame)
     im0 = load_img(img_path, i_frame)
     im0 = draw_one_frame(
         bbox_list,
         i_frame,
         img_path,
         (player1_tracklet, player2_tracklet),
-        pose_data,
+        matched_pose_data,
     )
     # show_image(im0, i_frame)
     save_frame_img(im0, dst_path, frame_id=i_frame)

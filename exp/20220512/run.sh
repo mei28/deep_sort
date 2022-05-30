@@ -7,7 +7,7 @@ tracklet_path="/home/mei/Documents/deep_sort/exp/20220512/data/${video_name}_ann
 bbox_path="/home/mei/Documents/deep_sort/exp/20220512/data/${video_name}/${video_name}_deepsort_output.txt"
 
 pose_path="/home/mei/Documents/deep_sort/exp/20220512/data/detection_poses_${video_name}.pkl"
-max_frame=10000
+max_frame=1000
 
 python exp/20220512/main.py \
   --dst_path $dst_path \
