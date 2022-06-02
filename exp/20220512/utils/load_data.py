@@ -7,9 +7,24 @@ import json
 
 
 def load_data(path: str) -> Any:
+    """csvのアノテーションデータを読み込む"""
     df = pd.read_csv(path)
     js = json.loads(df["tricks"][0])
     return js
+
+
+def load_annotated_label(path: Union[str, Path]) -> pd.DataFrame:
+    """前処理済みのアノテーションラベルファイルを取得
+    Args:
+        path: [start,end,labels]
+    Returns:
+        pd.DataFrame: [start,end,labels]
+    """
+    try:
+        df = pd.read_csv(str(path))
+        return df
+    except:
+        raise ValueError
 
 
 def list2df(data) -> pd.DataFrame:
@@ -91,6 +106,12 @@ def load_bbox_data(path_name: Union[str, Path]) -> list:
 
 
 def load_pose_data(path_name: Union[str, Path]) -> list:
+    """kapaoの姿勢データの取得
+    Args:
+        path:　読み取るパスの名前
+    Returns:
+        list [frame_id, player_id, poses]
+    """
     with open(str(path_name), "rb") as f:
         try:
             data: list = pickle.load(f)
