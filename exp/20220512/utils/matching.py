@@ -57,7 +57,14 @@ def calc_IOU_score(a, b) -> float:
 
 
 def match_id_by_iou(poses, bboxes, frame_id: int) -> list:
-    """kapaoのidとdeepsortのidをくっつける"""
+    """kapaoのidとdeepsortのidをくっつける
+    Args:
+        poses: kapaoのデータ
+        bboxes: deepsortのデータ
+        frame_id: 対象のフレーム
+    Returns:
+        deepsortのidと同じになったposeデータ
+    """
     poses = get_masked_poses(poses, frame_id)
     bboxes = get_masked_bboxes(bboxes, frame_id)
 
