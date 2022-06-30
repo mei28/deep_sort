@@ -4,3 +4,4 @@ scikit-learn
 ipdb
 seaborn
 ipywidgets
+pyarrow
