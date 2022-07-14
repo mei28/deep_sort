@@ -6,7 +6,7 @@ def frame2sec(frame: int, fps: float = 29.97):
     Returns:
         秒数
     """
-    return fps * frame
+    return frame * 1 / fps
 
 
 def sec2frame(sec: float, fps: float = 29.97):
