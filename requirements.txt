@@ -5,3 +5,4 @@ ipdb
 seaborn
 ipywidgets
 pyarrow
+fastprogress
